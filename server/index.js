@@ -14,7 +14,7 @@ import cookieParser from "cookie-parser";
 
 dotenv.config()
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5555
 const subdomain = process.env.SUBDOMAIN || 'api'
 const domain = process.env.DOMAIN || 'localhost'
 connectDB()
@@ -26,7 +26,7 @@ const server = new ApolloServer({
     resolvers,
     path: 'api.localhost/graphql',
     status400ForVariableCoercionErrors: true,
-    credentials: 'include'
+    // credentials: 'include'
 });
 
 await server.start();  
