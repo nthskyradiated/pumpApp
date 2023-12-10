@@ -15,8 +15,8 @@ import cookieParser from "cookie-parser";
 dotenv.config()
 
 const port = process.env.PORT || 5555
-const subdomain = process.env.SUBDOMAIN || 'api'
-const domain = process.env.DOMAIN || 'localhost'
+// const subdomain = process.env.SUBDOMAIN || 'api'
+// const domain = process.env.DOMAIN || 'localhost'
 connectDB()
 
 const app = express()
@@ -24,7 +24,7 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'api.localhost/graphql',
+    // path: 'api.localhost/graphql',
     status400ForVariableCoercionErrors: true,
     // credentials: 'include'
 });
@@ -34,7 +34,7 @@ app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your SvelteKit app's domain
+  origin: 'https://pump-app-andy-pandaans-projects.vercel.app/', // Replace with your SvelteKit app's domain
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Authorization', 'Content-Type', 'refreshtoken'],
   credentials: true,
@@ -42,7 +42,7 @@ app.use(cors({
 app.use(express.json())
 
 
-    app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
+    app.use(expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
     //     const token = req.headers.authorization || '';
 
