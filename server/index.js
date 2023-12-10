@@ -34,7 +34,7 @@ app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
-  origin: 'https://pump-app-andy-pandaans-projects.vercel.app/', // Replace with your SvelteKit app's domain
+  origin: '*', // Replace with your SvelteKit app's domain
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Authorization', 'Content-Type', 'refreshtoken'],
   credentials: true,
