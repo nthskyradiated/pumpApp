@@ -92,26 +92,38 @@ $: paginationSettings = {
   <h2 class='h2 mb-5'>Session History</h2>
   {#if isFetching}
   <Spinner />
-  {:else if $getAttendances.error}
+{:else if $getAttendances.error}
   <p>Oh no... {$getAttendances.error.message}</p>
-  {#if attendances.length > 0}
-    <Table source={tableSimple} class="pb-8"/>
-    
-    <Paginator
-      bind:settings={paginationSettings}
-      showFirstLastButtons="{true}"
-      showPreviousNextButtons="{true}"
-      justify-between="{true}"
-      class="pb-8"
-    />
-    {/if}
-    {/if}
-  {#each attendances as attendance}
-    <div class='card mb-4 p-5'>
-      <h1>{attendance.checkIn}</h1>
-      <h1>{attendance.client?.name}</h1>
-      <h1>{attendance.product?.name}</h1>
-      <h1>{attendance.id}</h1>
-    </div>
-    {/each}
+{:else if attendances.length > 0}
+  <div class="table-container">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>CheckIn Date</th>
+          <th>Client Name</th>
+          <th>Product Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each paginatedSource as attendance (attendance.id)}
+          <tr>
+            <td>{attendance.id}</td>
+            <td>{attendance.checkIn}</td>
+            <td>{attendance.client.name}</td>
+            <td>{attendance.product.name}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
+
+  <Paginator
+    bind:settings={paginationSettings}
+    showFirstLastButtons="{true}"
+    showPreviousNextButtons="{true}"
+    justify-between="{true}"
+    class="pb-8"
+  />
+{/if}
 </main>
