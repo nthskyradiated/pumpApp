@@ -2,8 +2,10 @@ import Client from '../models/clientModel.js'
 import Product from '../models/productModel.js'
 import User from '../models/userModel.js'
 import Attendance from '../models/attendanceModel.js'
+import ClientDocument from '../models/clientDocumentModel.js'
 import {authenticateUser, createAccessToken, createRefreshToken, authenticateAdmin} from '../utils/userAuth.js'
 import { findExistingClient, validateAge, calculateExpirationDate, updateMembershipStatus } from '../utils/clientUtils.js';
+import { isValidFileExtension, isValidURL} from '../utils/clientDocumentUtils.js';
 import { GraphQLScalarType, Kind } from 'graphql';
 import bcrypt from 'bcryptjs'
 import dotenv from "dotenv";
@@ -62,9 +64,8 @@ export const typeDefs = `#graphql
         name: String!
         description: String!
         price: Int!
-        # type: String!
-        # validity: String!
-        # expiresAt: Date!
+        productType: ProductType!
+        counter: Int!
     }
 
     type Client {
@@ -78,6 +79,16 @@ export const typeDefs = `#graphql
         membershipStatus: MembershipStatus!
         product: Product
         attendance: [Attendance]
+        documents: [ClientDocument]
+    }
+
+    type ClientDocument {
+        id: ID!
+        clientId: ID!
+        documentName: String!
+        documentType: DocumentType!
+        documentURL: String!
+        client: Client
     }
 
     type User {
@@ -98,6 +109,8 @@ export const typeDefs = `#graphql
         name: String!
         description: String!
         price: Int!
+        productType: ProductType!
+        counter: Int!
     }
 
     input UpdateProductInput {
@@ -105,6 +118,8 @@ export const typeDefs = `#graphql
         name: String
         description: String
         price: Int
+        productType: ProductType
+        counter: Int
     }
 
     input AddClientInput {
@@ -121,6 +136,20 @@ export const typeDefs = `#graphql
         phone: String
         birthdate: String
         waiver: Boolean
+    }
+
+    input AddClientDocumentInput {
+        clientId: ID!
+        documentName: String!
+        documentType: String!
+        documentURL: String!
+    }
+    input UpdateClientDocumentInput {
+        id: ID!
+        clientId: ID!
+        documentName: String
+        documentType: String
+        documentURL: String
     }
 
     input AddUserInput {
@@ -141,19 +170,29 @@ export const typeDefs = `#graphql
     type Query {
         products: [Product]
         clients: [Client]
+        documents: [ClientDocument]
         users: [User]
         attendances: [Attendance]
         attendance(ID: ID!) : Attendance
         product(ID: ID!) : Product
         client(ID: ID!) : Client
+        document(ID: ID!) : ClientDocument
         user(ID: ID!) : User
-
-        
     }
 
     enum MembershipStatus {
         active
         inactive
+    }
+    enum ProductType {
+        EVENT
+        SESSION_BASED
+        TIME_BASED
+    }
+    enum DocumentType {
+        WAIVER
+        IDENTIFICATION
+        PHOTO
     }
 
     type AuthPayload {
@@ -174,6 +213,12 @@ export const typeDefs = `#graphql
         updateClient(input: UpdateClientInput! productId: ID): Client
         
         deleteClient(id: ID!): Client
+
+        addClientDocument(input: AddClientDocumentInput!): ClientDocument
+
+        updateClientDocument(input: UpdateClientDocumentInput!): ClientDocument
+
+        deleteClientDocument(id: ID!): ClientDocument
 
         addProduct(input: AddProductInput!): Product
         
@@ -204,6 +249,10 @@ export const resolvers = {
             await authenticateUser(context)
             return Client.find()
         },
+        documents: async (parent, args, context) => {
+            await authenticateUser(context)
+            return ClientDocument.find()
+        },
         attendances: async (parent, args, context) => {
             await authenticateUser(context);
             return Attendance.find();
@@ -220,6 +269,10 @@ export const resolvers = {
         client: async (parent, {ID}, context) => {
             await authenticateUser(context)
             return await Client.findById(ID)
+        },
+        document: async (parent, {ID}, context) => {
+            await authenticateUser(context)
+            return await ClientDocument.findById(ID)
         },
         user: async (parent, {ID}, context) => {
             await authenticateAdmin(context)
@@ -246,8 +299,26 @@ export const resolvers = {
             });
         
             return populatedClientAttendance;
+        },
+        documents: async (parent) => {
+            console.log(parent.documents);
+            const clientDocuments = await ClientDocument.find({ clientId: parent.id });
+        
+            const populatedClientDocuments = clientDocuments.map((document) => {
+                return {
+                    ...document.toObject(), // Convert to plain object
+                    clientId: parent.id,     // Populate clientId
+                };
+            });
+        
+            return populatedClientDocuments;
         }
     
+    },
+
+    ClientDocument: {
+        clientId: async (parent) => await parent.clientId,
+        client: async (parent) => await Client.findById(parent.clientId)
     },
 
     Attendance: {
@@ -448,7 +519,14 @@ export const resolvers = {
 
         addProduct: async (parent, { input }, context) => {
             await authenticateAdmin(context)
-            const { name, description, price } = input;
+            const { name, description, price, productType, sessionsCounter, expiresIn } = input;
+
+            let additionalFields = {};
+            if (productType === 'SESSION_BASED') {
+              additionalFields.sessionsCounter = sessionsCounter;
+            } else if (productType === 'TIME_BASED') {
+              additionalFields.expiresIn = expiresIn;
+            }
         
             // Check if a product with the same name and description already exists
             const existingProduct = await Product.findOne({ $or: [{ name }, { description }] });
@@ -462,9 +540,11 @@ export const resolvers = {
                 name,
                 description,
                 price,
+                productType,
+                ...additionalFields,
             });
         
-            return product.save();
+            return await product.save();
         },
         
         updateProduct: async (parent, {input}, context) => {
@@ -619,6 +699,126 @@ export const resolvers = {
         await authenticateAdmin(context)
         return User.findByIdAndDelete(args.id)
         },
+        addClientDocument: async (parent, {input}, context) => {
+            await authenticateUser(context)
+    
+                        const { clientId, documentName, documentType, documentURL } = input;
+                        const client = await Client.findById(clientId);
+                
+                        if (!client) {
+                            throw new Error('Client not found');
+                        }
+
+                        if (!isValidURL(documentURL)) {
+                            throw new Error('Invalid document URL');
+                        }
+
+                        if (!isValidFileExtension(documentType, documentName)) {
+                            throw new Error('Invalid document name or type');
+                        }
+                  try {
+                                 // Create a new document record
+                                 const document = new ClientDocument({
+                                     clientId,
+                                     documentName,
+                                     documentType,
+                                     documentURL
+                                 });
+                        
+                                 // Save the document record
+                                 await document.save();
+                                     client.documents.push(document.id);
+                        
+                                     await client.save();
+                        
+                                 return document;
+                } catch (error) {
+                    if (error.code === 11000) {
+                      // Mongoose error code for duplicate key (index) violation
+                      throw new Error('Document with the same name or URL already exists');
+                    }
+                    throw error;
+                  }
+
+                  
+            },
+            updateClientDocument: async (parent, { input }, context) => {
+                await authenticateUser(context);
+              
+                const { id, clientId, documentName, documentType, documentURL } = input;
+                const client = await Client.findById(clientId);
+              
+                if (!client) {
+                  throw new Error('Client not found');
+                }
+              
+                if (!isValidURL(documentURL)) {
+                  throw new Error('Invalid document URL');
+                }
+              
+                if (!isValidFileExtension(documentType, documentName)) {
+                  throw new Error('Invalid document name or type');
+                }
+              
+                // Check for duplicate entries based on documentName and documentType
+                const existingDocument = await ClientDocument.findOne({
+                  clientId,
+                  documentName,
+                  documentType,
+                });
+              
+                if (existingDocument && existingDocument.id !== id) {
+                  throw new Error('Duplicate document entry');
+                }
+              
+                // Find the existing document by ID
+                const documentToUpdate = await ClientDocument.findById(id);
+              
+                if (!documentToUpdate) {
+                  throw new Error('Document not found');
+                }
+                console.log('documentToUpdate.clientId:', documentToUpdate.clientId);
+                console.log('provided clientId:', clientId);
+
+                if (!documentToUpdate.clientId.equals(clientId)) {
+                    throw new Error('Document does not belong to the specified client');
+                  }
+              
+                try {
+                    // Update the document fields
+                    documentToUpdate.documentName = documentName;
+                    documentToUpdate.documentType = documentType;
+                    documentToUpdate.documentURL = documentURL;
+                  
+                    // Save the updated document
+                    await documentToUpdate.save();
+                    return documentToUpdate;
+                } catch (error) {
+                    if (error.code === 11000) {
+                        // Mongoose error code for duplicate key (index) violation
+                        throw new Error('Document with the same name or URL already exists');
+                      }
+                      throw error;
+                }
+              },
+              deleteClientDocument: async (parent, { id }, context) => {
+                await authenticateAdmin(context)
+                // Find the attendance record by its ID
+                const document = await ClientDocument.findById(id);
+            
+                if (!document) {
+                  throw new Error('Document not found');
+                }
+            
+                // Remove the attendance record's ID from the client's attendance array
+                await Client.updateOne({ _id: document.clientId }, { $pull: { documents: document._id } });
+                
+            
+                // Delete the attendance record
+                await ClientDocument.findByIdAndDelete(id);
+            
+                return document;
+                },
 
     }
 };
