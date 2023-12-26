@@ -10,6 +10,13 @@ const ProductSchema = new mongoose.Schema({
     price: {
         type: Number
     },
+    productType: {
+        type: String,
+        enum: ["EVENT", "SESSION_BASED", "TIME_BASED"]
+    },
+    counter: {
+        type: Number
+    },
 
 }, {timestamps: true}
 );

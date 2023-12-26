@@ -3,7 +3,6 @@
 <script>
   import { queryStore, gql, getContextClient } from '@urql/svelte';
   import { Paginator } from '@skeletonlabs/skeleton';
-  import { Table, tableMapperValues } from '@skeletonlabs/skeleton';
   import Spinner from '../../components/Spinner.svelte';
 
 
@@ -27,22 +26,6 @@
     `,
   });
 
-  const mapperValues = async (source, keys) => {
-  return source.map(item => {
-    const row = keys.map(key => {
-      // Handle nested properties
-      const keyParts = key.split('.');
-      let value = item;
-      keyParts.forEach(part => {
-        value = value[part];
-      });
-      return value;
-    });
-    return row;
-  });
-};
-
-
   let isFetching = $getAttendances.fetching;
  let attendances = $getAttendances.data?.attendances || [];
 
@@ -59,31 +42,16 @@ $: paginationSettings = {
 
 }
 
-
   $: {
       isFetching = $getAttendances.fetching;
       attendances = $getAttendances.data?.attendances || [];
     }
-    $: tableSimple = {
-    head: ['ID', 'CheckIn', 'client name', 'product info'],
-    body: tableMapperValues(paginatedSource,[
-      'id',
-      'checkIn',
-      'client.name',
-      'product.name',
-    ]),
-  };
-
-
-
 
 
   $: paginatedSource = attendances.slice(
 	paginationSettings.page * paginationSettings.limit,
 	paginationSettings.page * paginationSettings.limit + paginationSettings.limit
 );
-
-
 
 
 // console.log(paginatedSource);

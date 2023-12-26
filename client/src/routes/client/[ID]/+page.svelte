@@ -2,7 +2,7 @@
   import { queryStore, gql, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
   import { TabGroup, Tab, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
-  import {tabSet} from '$lib/utilsStore'
+  import {tabSet, deleteDocumentStore} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
   import {auth} from '$lib/auth.js'
@@ -38,6 +38,7 @@ const toastStore = getToastStore();
                 }
               }
             documents {
+              id
               documentName
               documentType
               documentURL
@@ -74,6 +75,61 @@ const toastStore = getToastStore();
     }
   };
 
+  const deleteFileOnServer = async (documentURL) => {
+    try {
+      const response = await fetch(`${documentURL}`, {
+        method: 'DELETE',
+        // headers: {
+        //   'Content-Type': 'application/json',
+        //   // You may need to include additional headers like authorization
+        // },
+      });
+
+      if (!response.ok) {
+        console.log(response.toString());
+        throw new Error('Failed to delete file on server');
+      }
+
+      const result = await response.json();
+      console.log('File deleted on server:', result);
+    } catch (error) {
+      console.error('Error deleting file on server:', error);
+    }
+  };
+
+  const deleteClientDocument = async ( deleteClientDocumentId, documentURL ) => {
+    await deleteFileOnServer(documentURL)
+    console.log(documentURL);
+    console.log(deleteClientDocumentId);
+    result = mutationStore({
+      client,
+      query: gql`
+      mutation ($deleteClientDocumentId: ID!) {
+        deleteClientDocument(id: $deleteClientDocumentId) {
+        documentName
+        documentType
+        documentURL
+      }   
+    }
+      `,
+      variables: { deleteClientDocumentId },
+    })
+      await result;
+      if (result.error) {
+        console.error('Mutation error:', result.error);
+      } else {
+        const t = {
+          message: "Deleted Client Document",
+          timeout: 2000
+        };
+        toastStore.trigger(t);
+        goto('/dashboard');
+      }
+    }
+      
+  
+
+
   const addAttendance = async ({ input }) => {
 	  result = mutationStore({
 		client,
@@ -101,7 +157,7 @@ const toastStore = getToastStore();
     }
 	};
 
-    
+
   $: isFetching = $getClient.fetching;
   $: singleClient = $getClient.data?.client;
   $: deleteClientId = singleClient?.id
@@ -132,6 +188,24 @@ const deleteModal = {
 	// TRUE if confirm pressed, FALSE if cancel pressed
 	response: async (r) => !r? modalStore.close(): await deleteClient(deleteClientId)  
   } 
+  const deleteClientDocumentModal = {
+  type: 'confirm',
+  title: 'Deleting Client Document',
+  body: 'Are you sure you wish to proceed?',
+  // TRUE if confirm pressed, FALSE if cancel pressed
+  response: async (r) => {
+    if (!r) {
+      modalStore.close();
+    } else {
+        const {documentId, documentURL} = $deleteDocumentStore;
+        if (documentId && documentURL) {
+          await deleteClientDocument(documentId, documentURL);
+          deleteDocumentStore.set(null); // Reset the store after deletion
+        }
+      }
+  },
+};
+
 const addAttendanceModal = {
 	type: 'confirm',
 	title: 'Record Client Session',
@@ -141,8 +215,6 @@ const addAttendanceModal = {
   } 
     
   console.log($getClient.data);
-  
-
 
 </script>
 
@@ -213,6 +285,10 @@ const addAttendanceModal = {
             <a href={document.documentURL}><h1 class='h5 mb-2'>{document.documentName}</h1></a>
             <h1 class='h4 mb-1'>Document Type:</h1>
             <h1 class='h5 mb-2'>{document.documentType}</h1>
+            <button type="button" class="btn variant-filled mt-8" on:click={ () => {deleteDocumentStore.set({documentId: document.id, documentURL: document.documentURL}), modalStore.trigger(deleteClientDocumentModal)}}>
+              <Icon icon="la:skull-crossbones" />
+              <span>Delete</span>
+            </button>
             
           </div>
           {/each}
