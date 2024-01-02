@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { SvelteComponent } from 'svelte';
-	import { mutationStore, gql, getContextClient } from '@urql/svelte';
+	import { getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+	import { UpdateProductDocument } from '../generated/graphql';
 
 	export let parent: SvelteComponent;
   
@@ -10,31 +11,14 @@
 	let visible = false;
 	const message = "Please fill in all required fields. Minimum price value is 100."
 
-  
-	
-	const query = gql`
-		  mutation UpdateProduct($input: UpdateProductInput!) {
-			updateProduct(input: $input) {
-			  id
-			  name
-			  description
-			  price
-			  productType
-    		  expiresIn
-    		  sessionCounter
-			}
-		  }
-		  variables: { input },
-		`
 	const updateProduct = async ({ input }) => {
 		const result = await client
-		.mutation(query, { input})
+		.mutation(UpdateProductDocument, { input})
 		.toPromise()
 		.then()
 		return result
 	}
 
-  
 	const modalStore = getModalStore();
   
 	let formData = {
@@ -98,7 +82,6 @@
   }
 }
 
-  
 	// Base Classes
 	const cBase = 'card p-4 w-modal shadow-xl space-y-4';
 	const cHeader = 'text-2xl font-bold';
@@ -141,7 +124,6 @@
 			<textarea class="textarea" rows="4" bind:value={formData.description} placeholder={$modalStore[0].meta.singleProduct.description} />
 		</label>
 
-
 	  </form>
 	  <!-- prettier-ignore -->
 	  <footer class="modal-footer {parent.regionFooter}">
@@ -149,7 +131,6 @@
 		<button class="btn {parent.buttonPositive}" on:click={onFormSubmit}>Update Product</button>
 	  </footer>
 	</div>
-
 
 {#if visible}
 <aside class="alert variant-filled-surface z-10 fixed bottom-1 right-1">

@@ -2,6 +2,7 @@
 	import { SvelteComponent } from 'svelte';
 	import {  queryStore, gql, getContextClient } from '@urql/svelte';
 	import { getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+	import { ProductsDocument } from '../generated/graphql';
 
 	export let parent: SvelteComponent;
 
@@ -40,30 +41,12 @@
   
 	const getProducts = queryStore({
 	  client,
-	  query: gql`
-		query {
-		  products {
-			id
-			name
-			description
-			price
-		  }
-		}
-	  `,
+	  query: ProductsDocument
 	});
   
 	$: products = $getProducts.data?.products || [];
   
 	const modalStore = getModalStore();
-  
-// 	let formData = {
-// 	id: "",
-//     name: "",
-//     phone: "",
-//     email: "",
-//     birthdate: "",
-//     waiver: false,
-//   };
 
 let formProduct = {
     product: $modalStore[0].meta.singleClient.product?.id || "NA"
@@ -78,12 +61,7 @@ let formProduct = {
       birthdate: "",
       waiver: $modalStore[0].meta.singleClient.waiver
     };
-//  $:  formProduct = {
-//     product: $modalStore[0].meta.singleClient.product?.id || 'NA' || null || undefined
-//   };
-//   });
 
-// console.log($modalStore[0]);
 	
 
 async function onFormSubmit() {

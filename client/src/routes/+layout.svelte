@@ -29,8 +29,6 @@
     localStorage.removeItem('token');
     goto('/');
   }
-
-
 </script>
 
 <Modal components={modalRegistry} />

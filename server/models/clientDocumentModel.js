@@ -35,5 +35,4 @@ ClientDocumentSchema.method('removeDocument', async function () {
     return this.deleteOne();
   });
   
-
 export default mongoose.model('ClientDocument', ClientDocumentSchema);
