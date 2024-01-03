@@ -50,7 +50,7 @@ const toastStore = getToastStore();
       });
 
       if (!response.ok) {
-        console.log(response.toString());
+        // console.log(response.toString());
         throw new Error('Failed to delete file on server');
       }
 
@@ -179,7 +179,7 @@ const deleteModal = {
       modalStore.close();
     } else {
           const {attendanceId} = $deleteAttendanceStore
-          console.log(attendanceId)
+          // console.log(attendanceId)
           await deleteAttendance(attendanceId);
           deleteAttendanceStore.set(null); // Reset the store after deletion
         }
@@ -194,7 +194,7 @@ const addAttendanceModal = {
 	response: async (r) => !r? modalStore.close(): await addAttendance(addAttendanceInput)  
   } 
     
-  console.log($getClient.data);
+  // console.log($getClient.data);
 
 </script>
 

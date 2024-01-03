@@ -27,7 +27,7 @@
   
   let isFetching = getClientByName.fetching || $getClients.fetching
   let clients = getClientByName.data?.clientByName || $getClients.data?.clients || [];
-  console.log(clients);
+  // console.log(clients);
   
   let paginationSettings = {
     page: 0,
@@ -57,7 +57,7 @@
 }
   
   function setTableSource() {
-    console.log(paginatedSource);
+    // console.log(paginatedSource);
     paginatedSource = paginatedSource
     return {
       head: ['ID', 'Name', 'Email', 'Phone',  'Status', 'Expiry', 'Waiver'],
@@ -73,7 +73,7 @@
     ])
   }}
   
-  console.log(paginatedSource);
+  // console.log(paginatedSource);
   
   
   const modalStore = getModalStore();
@@ -109,7 +109,7 @@
   };
   
   $: paginationSettings = {...paginationSettings, size: clients.length}
-  console.log(paginationSettings.size);
+  // console.log(paginationSettings.size);
   
   $: clients = getClientByName.data?.clientByName || $getClients.data?.clients || [];
   $: isFetching = getClientByName.fetching || $getClients.fetching

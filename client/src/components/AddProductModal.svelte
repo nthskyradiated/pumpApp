@@ -27,7 +27,7 @@
   price: 100,
   productType: 'TIME_BASED',
   expiresIn: 0 || null,
-  sessionCounter: 0 || null,
+  sessionCounter: 0,
 };
 
 	async function areFieldsFilled() {
@@ -65,7 +65,7 @@
 }
 
 async function onFormSubmit() {
-	console.log(formData);
+	// console.log(formData);
   try {
 
 	if (!areFieldsFilled()) {
@@ -88,7 +88,7 @@ async function onFormSubmit() {
       // If successful, close the modal
       if (data) {
 		  modalStore.close();
-		  console.log(data);
+		//   console.log(data);
         $modalStore[0]?.response(result);
       }
     }

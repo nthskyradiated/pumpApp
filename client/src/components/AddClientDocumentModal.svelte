@@ -46,8 +46,8 @@ const docUpload = async () => {
     form.append('file', renamedFile);
 
     // Debugging: Log formData and form data before the fetch
-    console.log('formData:', formData);
-    console.log('Form Data before fetch:', [...form.entries()]);
+    // console.log('formData:', formData);
+    // console.log('Form Data before fetch:', [...form.entries()]);
 
     // Use fetch to upload the file to the server
     const response = await fetch('https://uploads.thepumpfactory.net/upload', {
@@ -67,7 +67,7 @@ const docUpload = async () => {
 		formData.documentURL = resultUpload.url
 		delete formData.file
 		console.log(resultUpload);
-		console.log(formData);
+		// console.log(formData);
 
     } else {
       console.error('File upload failed');
@@ -91,8 +91,8 @@ const docUpload = async () => {
     formData.file = file;
     formData.documentName = newFilename;
 
-    console.log('Selected File:', file);
-    console.log('Updated FormData:', formData);
+    // console.log('Selected File:', file);
+    // console.log('Updated FormData:', formData);
   }
 };
 
@@ -120,7 +120,7 @@ async function onFormSubmit() {
         // If successful, close the modal
         if (data) {
           modalStore.close();
-          console.log(data);
+        //   console.log(data);
           $modalStore[0]?.response(result);
         }
       }

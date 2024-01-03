@@ -95,7 +95,7 @@ async function onFormSubmit() {
 		  // If successful, close the modal
 		  if (data) {
 			  modalStore.close();
-			  console.log(data);
+			//   console.log(data);
 			$modalStore[0]?.response(result);
 			goto('/dashboard');
 		  }

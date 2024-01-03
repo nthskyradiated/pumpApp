@@ -66,7 +66,7 @@ const mySearchMonthlyHandler = async () => {
       paginationSettings.page * paginationSettings.limit,
       paginationSettings.page * paginationSettings.limit + paginationSettings.limit
     );
-      console.log(attendances);
+      // console.log(attendances);
       return attendances
     }
     } catch (error) {
