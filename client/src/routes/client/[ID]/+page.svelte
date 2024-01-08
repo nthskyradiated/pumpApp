@@ -2,7 +2,7 @@
   import { queryStore, mutationStore, getContextClient } from '@urql/svelte';
   import Spinner from '../../../components/Spinner.svelte';
   import { TabGroup, Tab, getModalStore, getToastStore, Avatar } from '@skeletonlabs/skeleton';
-  import {tabSet, deleteDocumentStore, deleteAttendanceStore} from '$lib/utilsStore'
+  import {tabSet, deleteDocumentStore, deleteAttendanceStore, getInitials} from '$lib/utilsStore'
   import Icon from '@iconify/svelte';
   import { goto } from '$app/navigation';
   import {auth} from '$lib/auth.js'
@@ -50,7 +50,7 @@ const toastStore = getToastStore();
       });
 
       if (!response.ok) {
-        // console.log(response.toString());
+        console.log(response.toString());
         throw new Error('Failed to delete file on server');
       }
 
@@ -100,7 +100,7 @@ const toastStore = getToastStore();
         goto('/dashboard');
       }
     }
-
+      
   const addAttendance = async ({ input }) => {
 	  result = mutationStore({
 		client,
@@ -144,6 +144,13 @@ $: addClientDocumentModal = {
   meta: {singleClient: singleClient}
   
 };
+$: uploadWaiverModal = {
+	type: 'component',
+  component: 'uploadWaiverModal',
+  props: {singleClient: singleClient, isFetching},
+  meta: {singleClient: singleClient}
+  
+};
 const deleteModal = {
 	type: 'confirm',
 	title: 'Deleting Client Data',
@@ -179,7 +186,7 @@ const deleteModal = {
       modalStore.close();
     } else {
           const {attendanceId} = $deleteAttendanceStore
-          // console.log(attendanceId)
+          console.log(attendanceId)
           await deleteAttendance(attendanceId);
           deleteAttendanceStore.set(null); // Reset the store after deletion
         }
@@ -194,7 +201,7 @@ const addAttendanceModal = {
 	response: async (r) => !r? modalStore.close(): await addAttendance(addAttendanceInput)  
   } 
     
-  // console.log($getClient.data);
+  console.log($getClient.data);
 
 </script>
 
@@ -240,7 +247,7 @@ const addAttendanceModal = {
 
           {#if singleClient.documents && singleClient.documents.find(doc => doc.documentType === 'PHOTO')}
           <div class="pr-8 mb-4">
-            <Avatar src={singleClient.documents.find(doc => doc.documentType === 'PHOTO').documentURL} width="w-32" rounded="rounded-full" class="object-scale-down h-32 w-32" />
+            <Avatar src={singleClient.documents.find(doc => doc.documentType === 'PHOTO').documentURL} width="w-32" rounded="rounded-full" class="object-scale-down h-32 w-32" initials={getInitials(singleClient.name)}/>
           </div>
           {/if}
         </div>
@@ -307,9 +314,13 @@ const addAttendanceModal = {
           </div>
           {/each}
           {/if}
-          <button type="button" class='btn variant-filled' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload</button>
-        {/if}
-
+          <div class="flex sm:flex-row flex-col sm:justify-between mx-6 items-center">
+            <button type="button" class='btn variant-filled mb-4 px-9' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload ID</button>
+            {#if !singleClient.documents.find(doc => doc.documentType === 'WAIVER')}
+            <button type="button" class='btn variant-filled mb-4' on:click={() => {modalStore.trigger(uploadWaiverModal)}}>Upload Waiver</button>
+            {/if}
+          </div>
+          {/if}
       </svelte:fragment>
     </TabGroup>
   </div>
