@@ -203,7 +203,7 @@
 <div class="modal-example-form {cBase}">
   <header class={cHeader}>{$modalStore[0].title ?? 'Pump Factory Electronic Waiver'}</header>
 <main class="w-5/6 m-auto leading-8">
-  <p class="mt-2 text-sm text-center mb-4">Please sign on the dotted line to indicate that you agree to all the legal terms stipulated above.</p>
+  <p class="mt-2 text-sm text-center mb-4">Please sign on the dotted line to indicate that you agree to all the legal terms stipulated Below.</p>
   <div class="relative w-full h-[360px] bg-gray-100 border border-dashed border-gray-300">
     <div class="absolute left-4 right-4 bottom-24 border-t border-dotted border-gray-300" />
     <div
@@ -236,7 +236,7 @@
 
 	<div>
 		<p>I,
-			<input type="text" required placeholder="enter full name" class="w-1/4 pl-2 input" id='participantName'/>, of legal age, and resident of <input type="text" required placeholder="enter complete address" class="input w-96 pl-2" id='address'/>, hereby acknowledge that I/my minor am/is voluntarily participating in activities at The Pump Factory Rock Climbing Gym (hereinafter “the Gym”). In consideration to use the facilities and equipment provided, I agree to the following terms and conditions:</p>
+			<input type="text" required placeholder="enter full name" class="sm:w-1/4 w-2/3 pl-2 input" id='participantName'/>, of legal age, and resident of <input type="text" required placeholder="enter complete address" class="input sm:w-1/3 w-5/5 pl-2" id='address'/>, hereby acknowledge that I/my minor am/is voluntarily participating in activities at The Pump Factory Rock Climbing Gym (hereinafter “the Gym”). In consideration to use the facilities and equipment provided, I agree to the following terms and conditions:</p>
 
 
 		<ol>
@@ -254,11 +254,11 @@
 		<p><strong>Printed Name of Participant: </strong><input type="text" required placeholder="Full name of participant" id='participantName' class="w-72 pl-2 my-8 input"/></p>
 		<p><strong>Printed Name of Guardian: </strong><input type="text" required placeholder="Full name of guardian" class="w-72 pl-2 mb-8 input" id='guardianName'/></p>
 		<label for="date"> 
-		<strong class="pr-16">Date of Signature: </strong><input type="date" required placeholder="date" title="Input (date)" id="date" class='input w-1/6 mb-8'/>
+		<strong class="pr-16">Date of Signature: </strong><input type="date" required placeholder="date" title="Input (date)" id="date" class='input sm:w-1/6 w-2/3 mb-8'/>
 		</label>
 	</div>
 
-  <footer class="modal-footer {parent.regionFooter}">
+  <footer class="modal-footer {parent.regionFooter} mt-4">
 		<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
 		<button class="btn {parent.buttonPositive}" on:click={onSubmit}>Submit Waiver</button>
 	  </footer>

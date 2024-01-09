@@ -315,7 +315,7 @@ const addAttendanceModal = {
           {/each}
           {/if}
           <div class="flex sm:flex-row flex-col sm:justify-between mx-6 items-center">
-            <button type="button" class='btn variant-filled mb-4 px-9' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload ID</button>
+            <button type="button" class='btn variant-filled mb-4 px-9' on:click={() => {modalStore.trigger(addClientDocumentModal)}}>Upload Docs</button>
             {#if !singleClient.documents.find(doc => doc.documentType === 'WAIVER')}
             <button type="button" class='btn variant-filled mb-4' on:click={() => {modalStore.trigger(uploadWaiverModal)}}>Upload Waiver</button>
             {/if}
