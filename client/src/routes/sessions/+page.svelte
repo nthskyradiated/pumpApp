@@ -87,8 +87,8 @@ const mySearchMonthlyHandler = async () => {
   </div>
   {#if isFetching}
   <Spinner />
-{:else if attendances.error}
-  <p class="mb-8">Oh no... {attendances.error.message}</p>
+{:else if $getAttendances.error}
+  <p class="mb-8">Oh no... {$getAttendances.error.message}</p>
 {:else if attendances.length > 0}
   <div class="table-container  pb-8">
     <table class="table table-hover">
