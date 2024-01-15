@@ -51,7 +51,7 @@
       <svelte:fragment slot="trail">
           <nav class='text-xl flex align-text-bottom flex-col md:flex-row'>
               {#if $page.url.pathname !== '/'}
-              <a class='mr-4' href="/products">Products</a>
+              <a class='mr-4' href="/products">Packages</a>
               <a class='mr-4' href="/sessions">Sessions</a>
               <a class='mr-4' href="/dashboard">Clients</a>
               <a class='mr-4' href="/#" on:click={handleLogout}>Logout</a>
