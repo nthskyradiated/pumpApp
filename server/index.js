@@ -8,15 +8,14 @@ import ansi from '../node_modules/ansi-colors-es6/index.js'
 import morgan from "morgan";
 import helmet from "helmet";
 import vhost from "vhost";
-// import { expressjwt } from "express-jwt";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
 dotenv.config()
 
-const port = process.env.PORT || 5000
-const subdomain = process.env.SUBDOMAIN || 'api'
-const domain = process.env.DOMAIN || 'localhost'
+const port = process.env.PORT || 5555
+// const subdomain = process.env.SUBDOMAIN || 'api'
+// const domain = process.env.DOMAIN || 'localhost'
 connectDB()
 
 const app = express()
@@ -24,9 +23,9 @@ const app = express()
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    path: 'api.localhost/graphql',
+    // path: 'api.localhost/graphql',
     status400ForVariableCoercionErrors: true,
-    credentials: 'include'
+    // credentials: 'include'
 });
 
 await server.start();  
@@ -34,14 +33,15 @@ app.use(cookieParser())
 app.use(morgan('common'));
 app.use(helmet({ contentSecurityPolicy: (process.env.NODE_ENV === 'production') ? undefined : false }));
 app.use(cors({
-  origin: 'http://localhost:5173', // Replace with your SvelteKit app's domain
+  origin: '*', // Replace with your SvelteKit app's domain
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: ['Authorization', 'Content-Type', 'refreshtoken'],
   credentials: true,
 }));
 app.use(express.json())
 
 
-    app.use(vhost(`${subdomain}.${domain}`, expressMiddleware(server, {
+    app.use(expressMiddleware(server, {
       context: async ({ req, res }) => {return {req, res}}}))
     //     const token = req.headers.authorization || '';
 
@@ -63,15 +63,7 @@ app.use(express.json())
     
     // }))
 
-)
+// )
 
-// const authMiddleware = expressjwt({
-//     secret: process.env.JWT_SECRET, // Replace with your secret key
-
-//     algorithms: ['HS256'], // Use HS256 or the appropriate algorithm for your setup
-//   });
-//   // Use the authentication middleware for protected routes
-//   app.use(authMiddleware);
-  
 
 app.listen(port, () => console.log(ansi.green.bold.underline(`server running on port ${port}`)));

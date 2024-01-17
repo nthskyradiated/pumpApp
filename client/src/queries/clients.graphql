@@ -1,4 +1,4 @@
-query {
+query Clients {
   clients {
     id
     name
@@ -8,14 +8,10 @@ query {
     age
     waiver
     membershipStatus
+    clientSessionCounter
+    clientExpiresIn
     product {
-      id
-      description
       name
-    }
-    attendance {
-      checkIn
-      clientId
     }
   }
 }

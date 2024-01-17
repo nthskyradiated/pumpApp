@@ -1,0 +1,17 @@
+query ClientByName($name: String) {
+  clientByName(name: $name) {
+    id
+    name
+    email
+    phone
+    birthdate
+    age
+    waiver
+    membershipStatus
+    clientSessionCounter
+    clientExpiresIn
+    product {
+      name
+    }
+  }
+}

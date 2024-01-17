@@ -7,6 +7,4 @@ console.log(ansi.cyan.underline.bold(`MongoDB Connected: ${db.connection.host}`)
 }
 
 
-
-
 export default connectDB
