@@ -10,5 +10,8 @@ query ClientByName($name: String) {
     membershipStatus
     clientSessionCounter
     clientExpiresIn
+    product {
+      name
+    }
   }
 }
