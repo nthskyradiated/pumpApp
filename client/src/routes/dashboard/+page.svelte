@@ -83,7 +83,7 @@
   
   const mySelectionHandler = (event) => {
     // Extract the ID from the 'detail' array in the event
-    const ID = event.detail[5];
+    const ID = event
     clientID.set(ID)
     goto(`/client/${ID}`)
     
@@ -142,11 +142,37 @@
   
   {#if clients.length > 0}
   
-  <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/>
-
-  <!-- {#if paginatedSource.length === 0}
-  <p class="mb-8">Oh no... Client record for <strong>{searchValue}</strong> not found... Did you type correctly?</p>
-  {/if} -->
+  <!-- <Table source={tableSimple} interactive={true} on:selected={mySelectionHandler} class="pb-8"/> -->
+  <div class="table-container  pb-8">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th>Package</th>
+          <th>Expiry</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each paginatedSource as client (client.id)}
+          <tr on:click={mySelectionHandler(client.id)}>
+            <td>{client.name}</td>
+            <td>{client.email}</td>
+            <td>{client.phone}</td>
+            <td>{client.membershipStatus}</td>
+            {#if client.product}
+            <td>{client.product?.name}</td>
+            {:else if !client.product}
+            <td>N/A</td>
+            {/if}
+            <td>{client.clientExpiresIn}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  </div>
 
   <Paginator
   bind:settings={paginationSettings}
