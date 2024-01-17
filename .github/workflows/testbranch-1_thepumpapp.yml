@@ -42,9 +42,7 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
-
+    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
@@ -54,13 +52,6 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
       
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B267682B6DBC4FDBBDD1C06279DC70B2 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_CA8E8CD924FE4FDE9CC8480748745B63 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1AAC540FCFAF492F878D34548D9067E0 }}
-
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
@@ -68,4 +59,4 @@ jobs:
           app-name: 'thePumpApp'
           slot-name: 'Production'
           package: .
-          
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_228981C636F5438BADFE2FEAE4BE069C }}
