@@ -152,20 +152,20 @@
 		<label for="date"> 
 		<strong class="pr-16">Date of Signature: </strong><input type="date" required placeholder="date" title="Input (date)" id="date" class='input sm:w-1/6 w-2/3 mb-8'/>
 		</label>
+    <footer class="modal-footer {parent.regionFooter} pb-18 z-10">
+      <button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
+      <button class="btn {parent.buttonPositive}" on:click={onSubmit}>Submit Waiver</button>
+      </footer>
 	</div>
 
-  <footer class="modal-footer {parent.regionFooter} mt-4">
-		<button class="btn {parent.buttonNeutral}" on:click={parent.onClose}>{parent.buttonTextCancel}</button>
-		<button class="btn {parent.buttonPositive}" on:click={onSubmit}>Submit Waiver</button>
-	  </footer>
   
-  <!-- <div class="relative">
+  <div class="relative pb-36">
     {#each layers as layer}
       <svg class="absolute fill-black" viewBox="0 0 {layer.width * 2} {layer.height * 2}">
         <path d={layer.path} />
       </svg>
     {/each}
-  </div> -->
+  </div>
 
 </main>
 </div>
