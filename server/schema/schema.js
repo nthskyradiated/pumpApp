@@ -263,7 +263,7 @@ export const resolvers = {
         },
         attendances: async (parent, args, context) => {
             await authenticateUser(context);
-            return Attendance.find();
+            return Attendance.find().sort({ checkIn: -1 });
           },
         monthlyAttendance: async (parent, { month, year }, context) => {
             await authenticateUser(context);
