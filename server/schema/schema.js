@@ -392,7 +392,7 @@ export const resolvers = {
                       },
                   });
               
-                  if (existingAttendance) {
+                  if (existingAttendance && product.productType ==='TIME_BASED') {
                       throw new Error('Attendance record for today already exists');
                   }
                     // // Calculate the expiration date for the product based on its validity
