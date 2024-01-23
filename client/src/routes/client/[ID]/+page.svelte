@@ -101,23 +101,30 @@ const toastStore = getToastStore();
       }
     }
       
-  const addAttendance = async ({ input }) => {
-	  result = mutationStore({
-		client,
-		query: AddAttendanceDocument,
-		variables: { input: addAttendanceInput },
-	  });
-    await result;
-    if (result.error) {
-      console.error('Mutation error:', result.error);
-    } else {
-      const t = {
-        message: "Session booked",
-        timeout: 2000
-      };
-      toastStore.trigger(t);
-      goto('/dashboard')
-    }
+    const addAttendance = async ({ input }) => {
+	  const result = await client
+    .mutation(AddAttendanceDocument, {input: addAttendanceInput})
+    .toPromise()
+    .then(result => {
+      if (result.error) {
+        const t = {
+          message: result.error.message,
+          timeout: 2000
+        };
+        toastStore.trigger(t);
+        console.error('Mutation error:', result.error);
+        
+      } else {
+        const t = {
+          message: "Session booked",
+          timeout: 2000
+        };
+        toastStore.trigger(t);
+        goto('/sessions')
+      }
+
+    })
+
 	};
 
 
