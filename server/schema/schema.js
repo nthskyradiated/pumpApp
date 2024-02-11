@@ -456,9 +456,9 @@ export const resolvers = {
         addClient: async (parent, args, context) => {
         const currUser = await authenticateUser(context)
         const {input} = args;
-        const existingClient = await findExistingClient(input.name, input.email, input.phone);
+        const existingClient = await findExistingClient(input.name);
         if (existingClient) {
-        throw new Error('Client with the same name, email, or phone already exists.');
+        throw new Error('Client with the same name already exists.');
         }
 
         if (args.productId) {
